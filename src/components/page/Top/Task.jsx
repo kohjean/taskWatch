@@ -1,7 +1,10 @@
+import { useState } from 'react';
 import { Tr, Td, Checkbox, Button, Input } from '@chakra-ui/react';
 
 export const Task = ({ props }) => {
   const { task, isActive, limit, activity } = props;
+  const [content, setContent] = useState(task);
+
   const formatHourTime = (totalMinute) => {
     const _hour = Math.floor(totalMinute / 60);
     const hour = _hour >= 10 ? _hour : '0' + _hour;
@@ -17,7 +20,7 @@ export const Task = ({ props }) => {
         <Checkbox onClick={() => console.log('toggle')} />
       </Td>
       <Td>
-        <Input value={task} />
+        <Input value={content} onChange={(e) => setContent(e.target.value)} />
       </Td>
       <Td>
         <Button

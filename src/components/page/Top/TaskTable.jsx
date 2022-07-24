@@ -13,7 +13,6 @@ import {
   TableContainer,
   Icon,
   HStack,
-  Modal,
 } from '@chakra-ui/react';
 import { css } from '@emotion/react';
 import { Task } from './Task';
