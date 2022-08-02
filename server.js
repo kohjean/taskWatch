@@ -32,6 +32,7 @@ db.sequelize.sync();
 require('./routes/users.routes')(app);
 require('./routes/tasks.routes')(app);
 require('./routes/actions.routes')(app);
+require('./routes/auth.routes')(app);
 
 // set port, listen for requests
 const PORT = process.env.NODE_PORT || 8080;
