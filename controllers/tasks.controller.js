@@ -1,30 +1,38 @@
+const jwt = require('jsonwebtoken');
 const db = require('../models');
 const Tasks = db.tasks;
 const Op = db.Sequelize.Op;
 
 // Create and Save a new task
 exports.create = (req, res) => {
-  if (!req.body.userId || !req.body.title) {
+  if (!req.body.title) {
     res.status(400).send({
-      message: 'Content can not be empty!',
+      message: 'Task title missing.',
     });
     return;
   }
-  const tasks = {
-    userId: req.body.userId,
-    title: req.body.title,
-    limit: req.body.limit || 0,
-  };
-
-  Tasks.create(tasks)
-    .then((data) => {
-      res.send(data);
-    })
-    .catch((err) => {
-      res.status(500).send({
-        message: err.message || 'Some error occurred',
+  try {
+    const { userId } = jwt.verify(req.cookies.auth, process.env.API_SIGNATURE);
+    const tasks = {
+      userId: userId,
+      title: req.body.title,
+      limit: req.body.limit || 0,
+    };
+    Tasks.create(tasks)
+      .then((data) => {
+        res.send(data);
+      })
+      .catch((err) => {
+        res.status(500).send({
+          message: err.message,
+        });
       });
+  } catch (err) {
+    return res.status(500).send({
+      name: err.name || 'Unexpected error',
+      message: err.message || 'Some error occurred',
     });
+  }
 };
 // Retrieve all tasks from the database.
 exports.findAll = (req, res) => {

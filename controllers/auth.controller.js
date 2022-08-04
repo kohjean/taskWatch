@@ -56,10 +56,15 @@ exports.logIn = (req, res) => {
             message: 'Password is incorrect',
           });
         } else {
-          const token = jwt.sign({ name: name }, process.env.API_SIGNATURE, {
-            expiresIn: '1h',
-          });
-          res.json({ token: token });
+          const token = jwt.sign(
+            { name: name, userId: data.id },
+            process.env.API_SIGNATURE,
+            {
+              expiresIn: '1h',
+            }
+          );
+          res.cookie('auth', token, { maxAge: 1000 * 60 * 10, httpOnly: true });
+          res.json({});
         }
       });
     })
