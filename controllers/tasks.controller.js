@@ -63,7 +63,41 @@ exports.findOne = (req, res) => {
 // Update a task by the id in the request
 exports.update = (req, res) => {};
 // Delete a task with the specified id in the request
-exports.delete = (req, res) => {};
+exports.delete = (req, res) => {
+  if (!req.params.id) {
+    return res.status(400).send({
+      message: 'Please specify task id.',
+    });
+  }
+  try {
+    const { userId } = jwt.verify(req.cookies.auth, process.env.API_SIGNATURE);
+    const taskId = req.params.id;
+    Tasks.destroy({
+      where: { id: taskId, userId: userId },
+    })
+      .then((num) => {
+        if (num === 1) {
+          res.send({
+            message: 'Task was deleted successfully!',
+          });
+        } else {
+          res.send({
+            message: `Cannot delete Task with id=${taskId}.`,
+          });
+        }
+      })
+      .catch(() => {
+        res.status(500).send({
+          message: `Could not delete Task with id=${taskId}`,
+        });
+      });
+  } catch (err) {
+    return res.status(500).send({
+      name: err.name || 'Unexpected error',
+      message: err.message || 'Some error occurred',
+    });
+  }
+};
 // Delete all tasks from the database.
 exports.deleteAll = (req, res) => {};
 // Find all published tasks
