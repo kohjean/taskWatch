@@ -3,6 +3,7 @@ const bcrypt = require('bcrypt');
 const db = require('../models');
 const Users = db.users;
 const saltRound = 10;
+const maxAge = 1000 * 60 * 10;
 
 exports.signUp = (req, res) => {
   if (!req.body.name || !req.body.mail || !req.body.password) {
@@ -21,6 +22,17 @@ exports.signUp = (req, res) => {
     };
     Users.create(user)
       .then((data) => {
+        const token = jwt.sign(
+          {
+            name: req.body.name,
+            userId: data.id,
+          },
+          process.env.API_SIGNATURE,
+          {
+            expiresIn: '1h',
+          }
+        );
+        res.cookie('auth', token, { maxAge: maxAge, httpOnly: true });
         res.send(data);
       })
       .catch((err) => {
@@ -63,7 +75,7 @@ exports.logIn = (req, res) => {
               expiresIn: '1h',
             }
           );
-          res.cookie('auth', token, { maxAge: 1000 * 60 * 10, httpOnly: true });
+          res.cookie('auth', token, { maxAge: maxAge, httpOnly: true });
           res.json({});
         }
       });
